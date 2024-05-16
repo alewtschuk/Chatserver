@@ -1,7 +1,7 @@
 # Chat Server
 
 * Author: Kai Sorensen and Alex Lewtschuk
-* Class: CS455 [Distributed Systems] Section #001
+* Class: CS455 [Distributed Systems]
 
 ## Overview
 
