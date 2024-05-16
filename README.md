@@ -10,9 +10,9 @@ to the ChatServer, join a chat room, and start chatting. It implements basic IRC
 
 ## Manifest
 
-ChatServer: implements a multithreaded server
-ChatClient: implements a multithreaded client
-CmdMsg: the only object that is sent back and forth between the clients and server
+- ChatServer: implements a multithreaded server
+- ChatClient: implements a multithreaded client
+- CmdMsg: the only object that is sent back and forth between the clients and server
 
 ## Building the project
 
