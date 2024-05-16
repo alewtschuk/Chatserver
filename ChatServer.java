@@ -1,5 +1,3 @@
-package p1;
-
 /*
  * MAIN SERVER CLASS
  * Running this main method will establish a server that starts accepting connections.
@@ -7,7 +5,7 @@ package p1;
  * 
  * This server sets up three (by default) chat rooms for clients to chat in.
  * 
- * Author: Kai Sorensen
+ * Author: Alex Lewtschuk and Kai Sorensen
  */
 
 import java.io.IOException;
@@ -24,11 +22,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-//MAIN CLASS FOR RUNNING THE SERVER
-
+/*
+* Main class for chat server
+*/
 public class ChatServer extends  Thread {
 
-    private int port; //we get port 5128
+    private int port; //we use port 5128
     private int db; //debug level
     private ServerSocket servSock;
 
@@ -45,7 +44,9 @@ public class ChatServer extends  Thread {
     private long timeStart;
 
 
-    //constructor
+    /*
+    * Constructor for ChatServer
+    */
     public ChatServer(int p, int d) {
         this.port = p; 
         this.db = d;
@@ -72,7 +73,9 @@ public class ChatServer extends  Thread {
         }
     }
 
-    //guess what this method does
+    /*
+    * Runs the server
+    */
     public void runServer() {
         System.out.println("\nLAUNCHING SERVER\n");
         pool.execute(new DeathToClients(180000));
@@ -95,7 +98,9 @@ public class ChatServer extends  Thread {
         }
     }
 
-    //initiates channels :) :) :) :) i luv channels
+    /*
+    * Initiates channels :) :) :) :) I luv channels
+    */ 
     private void initiateChannels() {
         String[] channelNames = {"A","B","C"};
         for (int i = 0; i < 3; i++) {
@@ -106,7 +111,9 @@ public class ChatServer extends  Thread {
         this.numChannels = channelNames.length;
     }
 
-    //handles cutting off the clients before ending the program
+    /*
+    * Handles cutting off the clients before ending the program
+    */
     private void shutdown() {
         try {
             //notify the clients
@@ -125,7 +132,9 @@ public class ChatServer extends  Thread {
         }
     }
 
-    //gets server stats!!!!!!
+    /*
+    * Gets server stats!!!!!!
+    */
     private String getStats() {
         String stats = "";
         stats += "number of clients: " + numClients + "\n";
@@ -134,8 +143,10 @@ public class ChatServer extends  Thread {
         return stats;
     }
 
-    //an inner class is used because we need an object that can be ran as a thread, so this inner class implements Runnable
-    //this object also represents clients
+    /*
+    * An inner class is used because we need an object that can be ran as a thread, so this inner class implements Runnable
+    * this object also represents clients
+    */ 
     private class ServerConnection extends Thread {
         private final Socket clientSocket; //the client connection
         private CmdMsg info; //this is the only object that will be sent to the client, with updated contents each time
@@ -158,19 +169,31 @@ public class ChatServer extends  Thread {
             names.add(name);
         }
 
-        //getters for ServerConnection
+        /*
+        * Getters for ServerConnection
+        */
         public CmdMsg getInfo() {
             return this.info;
         }
-        //gets the object output stream for the client assocaited with this thread
+        
+        /*
+        * Gets the object output stream for the client assocaited with this thread
+        */
         public ObjectOutputStream getOOS() {
             return this.oos;
         }
-        //used when the server is shutting down or if the client is leaving the server
+
+        /*
+        * Used when the server is shutting down or if the client is leaving the server
+        */
         public void setQuitting(boolean quit) {
             this.quitting = quit;
         }
-        //runs the thread
+
+        
+        /*
+        * Runs the thread
+        */
         public void run() {
             try {
                 ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -213,7 +236,9 @@ public class ChatServer extends  Thread {
             } catch (IllegalMonitorStateException e) {/*this is a stupid exception and I don't like it*/}
         }
 
-        //the most important method of this class
+        /*
+        * Handles the recieved info
+        */
         private void handleInfo(Object receivedInfo) throws ClassNotFoundException {
             //make sure it's a CmdMsg
             if(!(receivedInfo instanceof CmdMsg)) throw new ClassNotFoundException("server did not reveive a CmdMsg object");
@@ -259,7 +284,9 @@ public class ChatServer extends  Thread {
         //COMMAND HANDLING METHODS
         //these methods update the "info" instance variable of this inner class, preparing it to be sent out
 
-        //called when the client is in a channel and sends a chat
+        /*
+        * Called when the client is in a channel and sends a chat
+        */
         private void handleChat(String message) {
             //this if statement makes sure the client is in a channel first
             if(!(ch == null)) {
@@ -272,11 +299,17 @@ public class ChatServer extends  Thread {
                 this.info.updateContents("/print", "You must join a channel to send chats.");
             }
         }
-        //called when the client initially connects
+        
+        /*
+        * Called when the client initially connects
+        */
         private void handleConnect(String message) {
             info.updateContents("/print", "\nYou are now connected to AMIT CHAT.\n");
         }
-        //called when the client is setting a new nickname
+        
+        /*
+        * Called when the client is setting a new nickname
+        */
         private void handleNick(String message) {
             String newName = message.trim(); //no spaces on the ends
             //condition: if it's a unique nickname
@@ -291,14 +324,20 @@ public class ChatServer extends  Thread {
                 if(db == 1) System.out.println("Client \"" + this.name + "\" tried a name that was taken! " + newName);
             }
         }
-        //called when the client wants the channel list, gives formatted output
+        
+        /* 
+        * Called when the client wants the channel list, gives formatted output
+        */
         private void handleList() {
             if(db == 1) System.out.println("Client \"" + this.name + "\" is asking for the channel list");
             String message = "";
             for(String name : channelClientMap.keySet()) message += "Channel " + name + ": " + channelClientMap.get(name).size() + " chatters\n";
             info.updateContents("/print", message);
         }  
-        //called when the client wants to join a channel
+        
+        /*
+        * Called when the client wants to join a channel
+        */
         private void handleJoin(String message) {
             //condition: if the client specified a channel
             if(!(message == null)) {
@@ -328,7 +367,10 @@ public class ChatServer extends  Thread {
             }
             
         }
-        //called when the client is leaving a channel
+        
+        /*
+        * Called when the client is leaving a channel
+        */
         private void handleLeave() {
             //condition: if the client is indeed in a channel
             if(!(ch == null)) {
@@ -340,18 +382,27 @@ public class ChatServer extends  Thread {
                 info.updateContents("/print", "You are not in a channel.");
             }   
         }
-        //called when the client uses /quit, we completely remove it from the server's data
+
+        /*
+        * Called when the client uses /quit, we completely remove it from the server's data
+        */
         private void handleQuit() {
             if(!(ch == null)) channelClientMap.get(ch.name).remove(this);
             allClients.remove(this);
             this.quitting = true; //sets quitting 
             System.out.println("Client \"" + this.name + "\" disconnected");
         }
-        //called when the client wants stats
+        
+       /*
+        * Called when the client wants stats
+        */
         private void handleStats() {
             info.updateContents("/print", getStats());
         }
-        //called if the client sends a command that isn't recognized, though this may also be handled on the client-side
+
+        /*
+        * Called if the client sends a command that isn't recognized, though this may also be handled on the client-side
+        */
         private void handleError() {
             info.updateContents("/print", "improper command: use /help");
             if (db == 1) System.out.println("Error message triggered by client \"" + this.name);
@@ -359,20 +410,30 @@ public class ChatServer extends  Thread {
  
     }//end ServerConnection class
 
-    //inner class representing channels
+    /*
+    * Inner class representing channels
+    */
     private class Channel {
         //its name is what identifies it
         private String name;
 
-        //constructor
+        /*
+        * Constructor
+        */
         public Channel(String name) {
             this.name = name;
         }
+
+        /*
+        * Gets name
+        */
         public String getName() {
             return this.name;
         }
 
-        //called to send a chat to the channel
+        /*
+        * Called to send a chat to the channel
+        */
         public void sendChat(ServerConnection sender) {
             CmdMsg toSend = sender.getInfo();
             int j = channelClientMap.get(name).indexOf(sender);
@@ -392,12 +453,22 @@ public class ChatServer extends  Thread {
 
     } //end Channel class
 
+    /*
+    * Shutdown hook
+    */
     public class DeathToClients extends Thread {
         private int wait; //how long before the server shuts down, used for the 3 minute wait
 
+        /*
+        * Constructor
+        */ 
         public DeathToClients(int millis) {
             this.wait = millis;
         }
+
+        /*
+        * Runs thread
+        */
         public void run() {
             while (true) {
                 if(System.currentTimeMillis() - timeStart > this.wait) {
@@ -409,6 +480,9 @@ public class ChatServer extends  Thread {
         }
     } //end DeathToClients class
 
+    /*
+    * Main class to run Server
+    */
     public static void main(String[]args) {
         int p = -1; //port to be passed into constructor
         int d = -1; //debug level to be passed into constructor
@@ -439,7 +513,9 @@ public class ChatServer extends  Thread {
         
     }//end main
 
-    //in case you goofed
+    /*
+    * Usage, in case you goofed
+    */
     private static void usage() {
         System.out.println("USAGE: java ChatServer -p <port#> -d <debug-level(0|1)>");
         System.exit(-1);
