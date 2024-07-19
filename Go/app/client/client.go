@@ -148,6 +148,8 @@ func runClient() {
 	}
 } //END RUN CLIENT METHOD
 
+//BEGIN UTILITY FUNCTIONS
+
 // Returns the rune(char) at position index
 func runeAt(str string, index int) rune {
 	return []rune(str)[index] //Casts the string to a rune array and returns the rune at the index
@@ -162,3 +164,70 @@ func extractCommandMessage(str string, index int) string {
 	}
 	return ""
 } //END EXTRACTCOMMANDMESSAGE FUNCTION
+
+//END UTILITY FUNCTIONS
+
+//BEGIN COMMAND HANDLING METHODS
+
+/*
+This method handles when the user tries to connect to the server
+*/
+func handleConnect(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+This method handles when a user tries to update or change thier nickname
+*/
+func handleNick(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+This method handles when a user tries to update or change thier nickname
+*/
+func handleList(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+This method handles when a client is joining a room
+*/
+func handleJoin(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+This method handles when a client attempts to leave a channel
+*/
+func handleLeave(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+This method handles when a user uses the /quit command
+*/
+func handleQuit(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+Handles the /help command. This is fully client side
+*/
+func handleHelp(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+This method handles the /stats command
+*/
+func handleStats(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
+
+/*
+This method handles when the user wants to chat
+*/
+func handleChat(cmdMsg cmdmsg.CmdMsg) {
+	panic("unimplemented")
+}
