@@ -20,25 +20,25 @@ func UpdateContents(cmdMsg *CmdMsg, updateCmd string, updateMsg string) {
 }
 
 // Allows modification of the nickname
-func updateNickname(cmdMsg *CmdMsg, trimmedNick string) {
+func UpdateNickname(cmdMsg *CmdMsg, trimmedNick string) {
 	cmdMsg.Msg = trimmedNick
 }
 
-func getCommand(cmdMsg *CmdMsg) string {
-	cmd := cmdMsg.Cmd
-	return cmd
-}
+// func GetCommand(cmdMsg *CmdMsg) string {
+// 	cmd := cmdMsg.Cmd
+// 	return cmd
+// }
 
-func getMessage(cmdMsg *CmdMsg) string {
-	msg := cmdMsg.Msg
-	return msg
-}
+// func GetMessage(cmdMsg *CmdMsg) string {
+// 	msg := cmdMsg.Msg
+// 	return msg
+// }
 
 func ToString(cmdmsg *CmdMsg) string {
 	return "CmdMsg contains command " + cmdmsg.Cmd + " and argument: " + cmdmsg.Msg
 }
 
-func checkBadNickChars(msg string) bool {
+func CheckBadNickChars(msg string) bool {
 
 	if strings.HasPrefix(msg, " ") {
 		fmt.Println("The first character is a space. Please reenter your name")

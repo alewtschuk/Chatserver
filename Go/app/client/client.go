@@ -10,8 +10,9 @@ import (
 	"log"
 	"os"
 	"strings"
+
 	//"encoding"
-	//"net"
+	"net"
 )
 
 // Temp function to prevent unused import deletion on save
@@ -35,6 +36,7 @@ const WHITE string = "\u001B[37m"
 
 var linechar string = GREEN + ">" + RESET
 var nickname string
+var server net.Conn
 
 // Server info stored as constants
 const (
@@ -47,6 +49,12 @@ var inConnect bool
 var currentChannel string
 var in *json.Decoder
 var out *json.Encoder
+
+var serverListener *Listener
+
+type Listener struct{
+	inListener = 
+}
 
 // Begin custom implementation of enum in Go as Go doesn't support enums
 // Custom type to hold value for each of the nickname states
@@ -75,23 +83,24 @@ func main() {
 Runs the client and handles the user command parsing and switch statment for command handling
 */
 func runClient() {
-	var cmdMsg cmdmsg.CmdMsg
+	var cmdMsg cmdmsg.CmdMsg                              //Declares new command message as a CmdMsg struct from the cmdmsg package
 	var scanner *bufio.Reader = bufio.NewReader(os.Stdin) //Creates a new pointer to a bufio reader type and then assigns it to a reader that reads from the OS's stdin
-	for {                                                 //Go's version of a while (true)
+	//Go's version of a while (true) below
+	for {
 		//BEGIN INPUT PARSING
-		if !listenerEnabled {
+		if !listenerEnabled { //Checks if the listener thread is not enabled and prints new line char if it is
 			fmt.Print(linechar)
 		}
-		var inp string
-		var scanErr error
-		inp, scanErr = scanner.ReadString('\n') //Gets user input
-		if scanErr != nil {
+		var inp string                          //Implicitly declares string that will store the user input
+		var scanErr error                       //Implicitly declares error that could be returned by the scanner.ReadString() function
+		inp, scanErr = scanner.ReadString('\n') //Gets user input by reading till the specified newline delimiter and assigning that to var inp string also assigns possible var scanErr error
+		if scanErr != nil {                     //If scanErr is nil terminate program and give reason Input error
 			log.Fatalln("Input error")
 		}
-		inp = strings.TrimSpace(inp) //Trims whitespace
-		var command string = "chat"
-		var message string
-		if inp != "" { //If the user gave input
+		inp = strings.TrimSpace(inp) //Trims whitespace on imp string
+		var command string = "chat"  //Sets default command string to chat
+		var message string           //Implicitly declares var message string
+		if inp != "" {               //If the user gave input and the input is not default value for strings in Go ""
 			if runeAt(inp, 0) == '/' { //If input contains a command
 				if strings.Contains(inp, " ") { // If input contains a space there may be an argument
 					var space int = strings.Index(inp, " ")
@@ -158,8 +167,8 @@ func runeAt(str string, index int) rune {
 // Extracts the specified substring after the input is split into two substrings by the first " " delimiter
 func extractCommandMessage(str string, index int) string {
 	splitCM := strings.SplitN(str, " ", 2) //Creates a new variable and implicitly assigns it to an array of strings made my by using SplitN to split the string into two substrings at the first " " character
-	if index < len(splitCM) {              //Checks for index out of bounds
-		//fmt.Println(splitCM[index])
+	if index < len(splitCM) {              //Checks for index out of bounds in this case if the index is less than 2
+		//fmt.Println(splitCM[index]) //Test prints the string at the index requested
 		return strings.ToLower(splitCM[index]) //Sets to lowercase and returns the substring at the index position
 	}
 	return ""
@@ -173,7 +182,23 @@ func extractCommandMessage(str string, index int) string {
 This method handles when the user tries to connect to the server
 */
 func handleConnect(cmdMsg cmdmsg.CmdMsg) {
-	panic("unimplemented")
+	if cmdMsg.Msg == "" { //If message is empty then no connection will be created
+		fmt.Println(RED + "No server name specified. Please connect using /connect <name>" + RESET)
+		return
+	} else if in != nil { //If the server in connection is not nil then print message about being connected to the server
+		fmt.Println(RED + "Already connected to a server.\n" + RESET)
+		fmt.Print(linechar)
+		return
+	}
+	var connectErr error                                  //Declaring the error explicitly
+	server, connectErr = net.Dial(SERVERHOST, cmdMsg.Msg) //Setting the server connection and value for possible net.Dial error return
+	if connectErr != nil {                                //If net.Dial returns an error tell user no server is found
+		fmt.Println(RED + "No server connection found." + RESET)
+	}
+	out = json.NewEncoder(server) //Declares out as a new json encoder and writes it to the server connection
+	in = json.NewDecoder(server)  //Declares in as a new json decoder and reads from server connection
+
+	go listener(server)
 }
 
 /*
